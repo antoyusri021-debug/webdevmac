@@ -5,14 +5,14 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Ekstrak Folder Penting
         run: |
           unzip build.zip -d .
           unzip themes.zip -d .
           
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           
@@ -20,7 +20,7 @@ jobs:
       - run: npx electron-builder --mac
       
       - name: Upload Installer
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: installer-mac
           path: dist/*.dmg
