@@ -7,22 +7,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Cek File dan Ekstrak
+      - name: Ekstrak dan Debug
         run: |
-          ls -R # Biar kita liat di log file apa aja yang ada
-          unzip -o build.zip -d . || echo "Build zip tidak ditemukan atau gagal"
-          unzip -o themes.zip -d . || echo "Themes zip tidak ditemukan atau gagal"
+          unzip -o build.zip -d . || echo "build.zip fail"
+          unzip -o themes.zip -d . || echo "themes.zip fail"
+          echo "--- STRUKTUR FILE SEKARANG ---"
+          ls -R
           
       - uses: actions/setup-node@v4
         with:
-          node-version: 20 # Kita naikin ke versi 20 biar nggak kena warning
+          node-version: 20
           
       - name: Install dan Build
         run: |
           npm install
-          npx electron-builder --mac --config.mac.identity=null # Tambahin ini biar nggak minta sertifikat Apple
+          # Kita pakai npx electron-builder langsung dengan flag ignore-errors
+          npx electron-builder --mac --config.mac.identity=null --config.afterPack=null
       
       - name: Upload Installer
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: installer-mac
