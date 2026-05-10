@@ -7,25 +7,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Ekstrak dan Debug
+      - name: Ekstrak File
         run: |
-          unzip -o build.zip -d . || echo "build.zip fail"
-          unzip -o themes.zip -d . || echo "themes.zip fail"
-          echo "--- STRUKTUR FILE SEKARANG ---"
-          ls -R
+          unzip -o build.zip -d . || echo "build.zip tidak ada"
+          unzip -o themes.zip -d . || echo "themes.zip tidak ada"
           
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           
-      - name: Install dan Build
+      - name: Install Dependencies
+        run: npm install
+          
+      - name: Build DMG
         run: |
-          npm install
-          # Kita pakai npx electron-builder langsung dengan flag ignore-errors
-          npx electron-builder --mac --config.mac.identity=null --config.afterPack=null
+          # Perintah ini lebih aman, tanpa embel-embel 'null' yang bikin error tadi
+          npx electron-builder --mac dmg -c.mac.identity=null
       
       - name: Upload Installer
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: installer-mac
