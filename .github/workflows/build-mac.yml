@@ -21,11 +21,11 @@ jobs:
           
       - name: Build DMG
         run: |
-          # Perintah ini lebih aman, tanpa embel-embel 'null' yang bikin error tadi
-          npx electron-builder --mac dmg -c.mac.identity=null
+          # Kita tambahin flag --publish never biar dia nggak minta token GitHub
+          npx electron-builder --mac dmg -c.mac.identity=null --publish never
       
-      - name: Upload Installer
+      - name: Simpan Installer
         uses: actions/upload-artifact@v4
         with:
-          name: installer-mac
+          name: WebDev-Mac-Installer
           path: dist/*.dmg
