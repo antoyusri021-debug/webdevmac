@@ -1,0 +1,1 @@
+tinggal : npm run dist

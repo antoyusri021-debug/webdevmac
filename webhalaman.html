@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDTiktok Engine - Professional Streaming Solution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0d0f;
+            --card-bg: #141619;
+            --input-bg: #0b0d0f;
+            --border-color: rgba(255, 255, 255, 0.05);
+            
+            /* Warna Aksen yang Lebih Halus & Profesional */
+            --gold-gradient: linear-gradient(135deg, #f1c40f 0%, #d35400 100%);
+            --premium-gradient: linear-gradient(135deg, #c3a561 0%, #ecf0f1 50%, #c3a561 100%); /* Warna Platinum/Gold Mewah */
+            
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.7);
+            
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 80px 20px;
+            /* Efek Grid Halus di Background */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Animasi Fade In Saat Load */
+            animation: fadeInPage 1s var(--ease) forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInPage {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px); }
+        }
+
+        /* Badge Tiktok yang Lebih Bagus */
+        .badge-dev {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-dim);
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: 0.3s;
+        }
+        
+        .badge-dev:hover {
+            border-color: rgba(241, 196, 15, 0.3);
+            background: rgba(241, 196, 15, 0.03);
+            color: #f1c40f;
+        }
+        
+        .badge-dev img { width: 20px; }
+
+        /* Judul Gede & Efek Gradient */
+        h1 {
+            font-size: 4.5rem;
+            margin: 0;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -3px;
+        }
+
+        h1 span {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            color: var(--text-dim);
+            font-size: 1.25rem;
+            margin: 25px auto 60px;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        /* Card Modern - Glassmorphism Halus */
+        .main-card {
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 32px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
+            width: 100%;
+            transition: 0.5s var(--ease);
+        }
+        
+        .main-card:hover {
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+        }
+        
+        .main-card h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Grouping Tombol */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .btn-base {
+            text-decoration: none;
+            padding: 22px 0;
+            width: 100%;
+            max-width: 400px;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 16px;
+            transition: 0.4s var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tombol Standar - Minimalis tapi Elegan */
+        .btn-standard {
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-standard:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            transform: translateY(-3px);
+        }
+
+        /* Tombol Premium - Benar-benar Mewah */
+        .btn-premium {
+            background: var(--premium-gradient);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(195, 165, 97, 0.3);
+            background-size: 200% auto;
+        }
+
+        /* Animasi Berkilau Mengalir di Premium Button */
+        @keyframes shineFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 15px 40px rgba(195, 165, 97, 0.5);
+            animation: shineFlow 1.5s linear infinite;
+        }
+
+        /* Ikon Tombol */
+        .btn-base svg { width: 20px; transition: 0.3s var(--ease); }
+        .btn-base:hover svg { transform: translateX(3px); }
+
+        /* Comment Section yang Lebih Modern */
+        .comment-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+            width: 100%;
+            transition: 0.3s;
+        }
+        
+        .comment-section:hover { border-color: rgba(255, 255, 255, 0.08); }
+
+        .comment-section h3 {
+            margin: 0 0 5px 0;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .comment-section p { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        input {
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px 20px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            border-radius: 12px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.2);
+        }
+
+        .btn-send {
+            background: var(--gold-gradient);
+            color: #000;
+            border: none;
+            padding: 0 35px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- OVERLAY CHAT DENGAN ANIMASI HALUS --- */
+        #overlay-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 350px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 15px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .chat-bubble {
+            background: rgba(20, 22, 25, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 14px 24px;
+            border-radius: 100px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: bubbleSlideIn 0.5s var(--ease) forwards;
+            max-width: fit-content;
+            align-self: flex-end;
+            will-change: transform, opacity;
+        }
+        
+        .chat-bubble:hover { border-color: rgba(241, 196, 15, 0.2); }
+
+        .chat-bubble strong {
+            color: #f1c40f;
+            font-weight: 600;
+        }
+
+        @keyframes bubbleSlideIn {
+            from { transform: translateY(30px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* Animasi Hapus dengan Fade + Scale Down */
+        .fade-out {
+            animation: fadeOutDown 0.6s var(--ease) forwards;
+        }
+
+        @keyframes fadeOutDown {
+            to { opacity: 0; transform: translateY(-10px) scale(0.9); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="overlay-container"></div>
+    <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
+
+    <div class="container">
+        <a href="https://tiktok.com/@webdev_ysi" target="_blank" class="badge-dev">
+            <svg viewBox="0 0 448 512" fill="currentColor"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.29V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z"/></svg>
+            @WebDev
+        </a>
+        
+        <h1>WD<span>Tiktok</span> Engine</h1>
+        <p class="hero-desc">Solusi otomatis interaksi Tiktok Live tingkat lanjut untuk kreator & brand profesional.</p>
+
+        <div class="main-card">
+            <h2>Download Center</h2>
+            <p style="color: var(--text-dim); font-size: 1.1rem; margin:0;">Pilih edisi yang sesuai dengan ambisi live streaming kamu.</p>
+            
+            <div class="button-group">
+                <!--<a href="update.html" class="btn-base btn-standard">
+                    CEK UPDATE TERBARU
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                </a>-->
+                
+                <a href="update.html" class="btn-base btn-premium">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z"/></svg>
+                    CEK UPDATE TERBARU
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="comment-section">
+            <h3>Absen dulu brow!</h3>
+            <p>Ketik pesan di sini.</p>
+            <div class="input-group">
+                <input type="text" id="commentInput" placeholder="Contoh: 'WDTiktok Engine emang Gacor!'">
+                <button id="sendBtn" class="btn-send" onclick="addComment()">KIRIM</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://sbbcxsowhcospqfhxhmp.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYmN4c293aGNvc3BxZmh4aG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNTI4NzMsImV4cCI6MjA4NzcyODg3M30.8eHGLCwfxvb-9dMHHQvDJp6OcfWAzZHwcBI1TDpo7qw';
+
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sound = document.getElementById('notifSound');
+        let localComments = [];
+
+        function showOverlay(text) {
+            const container = document.getElementById('overlay-container');
+
+            // Aturan Maksimal 6 Komentar di Layar
+            if (container.children.length >= 6) {
+                const oldest = container.lastElementChild;
+                oldest.classList.add('fade-out');
+                setTimeout(() => oldest.remove(), 800);
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.innerHTML = `<strong>User:</strong> ${text}`;
+
+            container.prepend(bubble); // Masuk dari paling bawah
+
+            // Bunyi suara notif
+            sound.currentTime = 0;
+            sound.play().catch(() => { console.log("Klik layar dulu biar suara aktif!"); });
+
+            // Hapus otomatis tiap bubble setelah 12 detik
+            setTimeout(() => {
+                if (bubble) {
+                    bubble.classList.add('fade-out');
+                    setTimeout(() => bubble.remove(), 800);
+                }
+            }, 12000);
+        }
+
+        async function addComment() {
+            const input = document.getElementById('commentInput');
+            const val = input.value.trim();
+            if (val !== "") {
+                const { error } = await _supabase.from('komentar_wd').insert([{ pesan: val }]);
+                if (!error) input.value = "";
+            }
+        }
+
+        // Realtime Listener
+        _supabase.channel('public:komentar_wd')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'komentar_wd' },
+                payload => {
+                    showOverlay(payload.new.pesan);
+                    localComments.push(payload.new.pesan);
+                })
+            .subscribe();
+
+        // Loop Chat yang sudah ada secara terus menerus
+        async function initApp() {
+            const { data } = await _supabase.from('komentar_wd').select('pesan').order('created_at', { ascending: false }).limit(30);
+
+            if (data && data.length > 0) {
+                localComments = data.map(d => d.pesan);
+
+                // Mulai looping tiap 4.5 detik
+                let i = 0;
+                setInterval(() => {
+                    if (localComments.length > 0) {
+                        showOverlay(localComments[i % localComments.length]);
+                        i++;
+                    }
+                }, 4500);
+            }
+        }
+
+        initApp();
+    </script>
+</body>
+
+</html>

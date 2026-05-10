@@ -1,0 +1,53 @@
+============================================================
+              WELCOME TO WEBDEV STREAM SYNC
+============================================================
+                Version 1.4.0 - "The Monitoring Era"
+
+Halo para Content Creator!
+Terima kasih telah memilih WebDev sebagai partner streaming
+terbaik lu. Di Versi 1.4.0 ini, interaksi live lu bakal 
+jauh lebih otomatis, modern, dan informatif!
+
+------------------------------------------------------------
+ APA YANG BARU DI VERSI 1.4.0?
+------------------------------------------------------------
+
+[NEW] MONITORING DASHBOARD REDESIGN
+Perubahan total tampilan panel monitoring chat agar lebih
+ringan, compact, dan mudah dipantau saat live streaming.
+
+[NEW] SMART FLOATING INTERACTION
+Sistem animasi melayang baru untuk Gift dan Follow dengan
+metode Random Positioning agar tampilan tidak menumpuk.
+
+[NEW] EXTENDED CHAT OVERLAY THEMES
+Penambahan koleksi tema chat overlay baru dengan desain
+minimalis dan estetik untuk mempercantik tampilan live.
+
+[NEW] MINIMIZE TO SYSTEM TRAY
+Aplikasi kini tetap berjalan di background saat jendela
+ditutup sehingga penggunaan resource PC jauh lebih ringan.
+
+[FIXED] STABILITY & SYNC ENGINE
+Optimasi koneksi server dan perbaikan sinkronisasi data 
+untuk respon chat yang lebih instan tanpa delay.
+
+------------------------------------------------------------
+ PERSIAPAN SEBELUM INSTALASI:
+------------------------------------------------------------
+1. Pastikan OBS Studio sudah terinstal di PC lu.
+2. Gunakan Username TikTok yang sedang dalam status LIVE.
+3. Manfaatkan fitur Tray Icon jika ingin menghemat RAM PC.
+
+------------------------------------------------------------
+ LEGAL & SUPPORT:
+------------------------------------------------------------
+Dikembangkan oleh WebDev untuk memajukan streamer Indonesia.
+Dilarang keras memperjualbelikan ulang tanpa izin resmi!
+
+Klik "SAYA SETUJU / AGREE" untuk memulai instalasi.
+Saatnya kuasai FYP dengan tampilan live yang pro!
+
+============================================================
+           BUILD BY WEBDEV - STREAM SYNC 2026
+============================================================
