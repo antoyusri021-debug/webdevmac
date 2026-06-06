@@ -14,7 +14,8 @@ jobs:
           
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Diperbarui ke versi 24 untuk menghilangkan peringatan deprecated
+          node-version: 24
           
       - name: Install Dependencies
         run: npm install
