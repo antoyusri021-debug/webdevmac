@@ -1,0 +1,138 @@
+============================================================
+             WELCOME TO WEBDEV STREAM SYNC
+============================================================
+             Version 1.7.1 - "The Creative Themes Update"
+
+Halo para Content Creator!
+
+Terima kasih telah memilih WebDev Stream Sync sebagai
+partner streaming terbaik untuk live TikTok, YouTube,
+dan berbagai platform lainnya.
+
+Di versi 1.7.1 ini kami menghadirkan pembaruan besar
+pada sistem Overlay, Music Request, serta koleksi tema
+baru yang membuat tampilan live streaming menjadi jauh
+lebih profesional, modern, dan menarik untuk penonton.
+
+------------------------------------------------------------
+ APA YANG BARU DI VERSI 1.7.1 ?
+------------------------------------------------------------
+
+[NEW] PREMIUM CHAT OVERLAY THEMES
+
+Kini tersedia berbagai desain Chat Overlay baru dengan
+tampilan yang lebih unik dan siap digunakan langsung
+di OBS Studio.
+
+Tema yang tersedia:
+
+🏮 Yakuza Tokyo Drift
+💎 Luxury Rose Gold
+🎀 Kawaii Korean Girl
+🐱 Neko Café
+🌸 Sakura Style
+
+Setiap tema memiliki desain, animasi, dan karakter
+visual yang berbeda untuk menyesuaikan identitas
+streaming Anda.
+
+------------------------------------------------------------
+
+[NEW] MUSIC REQUEST OVERLAY REDESIGN
+
+Sistem tampilan Music Request kini hadir dengan desain
+overlay yang lebih modern dan estetik.
+
+Tampilan informasi lagu, thumbnail, serta identitas
+requester kini tampil lebih menarik dan nyaman dilihat
+oleh penonton saat live berlangsung.
+
+------------------------------------------------------------
+
+[NEW] IMPROVED SONG REQUEST ENGINE
+
+Engine Music Request telah diperbarui untuk memberikan
+pengalaman pemutaran lagu yang lebih stabil.
+
+Peningkatan meliputi:
+
+✓ Queue Management lebih akurat
+✓ Perpindahan lagu lebih responsif
+✓ Optimasi sinkronisasi YouTube Player
+✓ Mencegah restart lagu saat ada request baru masuk
+✓ Pemrosesan antrean yang lebih stabil
+
+------------------------------------------------------------
+
+[IMPROVED] OVERLAY SYSTEM PERFORMANCE
+
+Optimalisasi sistem rendering overlay sehingga:
+
+✓ Lebih ringan dijalankan
+✓ Penggunaan RAM lebih efisien
+✓ Respons lebih cepat saat menerima chat
+✓ Animasi tampil lebih smooth di OBS
+
+------------------------------------------------------------
+
+[FIXED] CHAT OVERLAY COMPATIBILITY
+
+Perbaikan berbagai bug pada sistem Chat Overlay yang
+sebelumnya dapat menyebabkan beberapa konfigurasi tema
+tidak mengikuti pengaturan aplikasi secara sempurna.
+
+Kini seluruh tema telah terintegrasi penuh dengan:
+
+✓ Chat Limit
+✓ Auto Hide Timer
+✓ Layout Vertical
+✓ Layout Horizontal
+✓ Real-Time Configuration Update
+
+------------------------------------------------------------
+
+[FIXED] MUSIC REQUEST STABILITY
+
+Perbaikan berbagai masalah yang dilaporkan pengguna:
+
+✓ Lagu tidak mengulang saat ada request baru
+✓ Sinkronisasi thumbnail lebih akurat
+✓ Penanganan playlist kosong lebih baik
+✓ Stabilitas player meningkat
+
+------------------------------------------------------------
+
+ PERSIAPAN SEBELUM INSTALASI:
+------------------------------------------------------------
+
+1. Pastikan OBS Studio sudah terinstal pada PC Anda.
+2. Gunakan Username TikTok yang sedang dalam status LIVE.
+3. Pastikan koneksi internet stabil untuk hasil terbaik.
+4. Hubungi Admin WebDev untuk aktivasi lisensi aplikasi.
+5. Disarankan menggunakan versi OBS terbaru.
+
+------------------------------------------------------------
+
+ LEGAL & SUPPORT:
+------------------------------------------------------------
+
+Dikembangkan oleh WebDev untuk mendukung perkembangan
+content creator dan streamer Indonesia.
+
+Dilarang memperjualbelikan, mendistribusikan ulang,
+atau memodifikasi aplikasi tanpa izin resmi dari WebDev.
+
+Untuk bantuan teknis dan aktivasi lisensi,
+silakan hubungi Admin WebDev.
+
+------------------------------------------------------------
+
+Klik "SAYA SETUJU / AGREE" untuk memulai instalasi.
+
+Siapkan streaming yang lebih profesional dengan
+Overlay Premium, Music Request Modern, dan performa
+yang lebih stabil dari sebelumnya.
+
+============================================================
+         BUILD BY WEBDEV - STREAM SYNC 2026
+============================================================

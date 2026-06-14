@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebDev</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f1014; /* Lebih gelap biar elegan */
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            -webkit-app-region: drag;
+        }
+
+        /* Animasi Masuk */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            background: linear-gradient(145deg, #242731, #1a1c23);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.1);
+            width: 380px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+        }
+
+        /* Garis cahaya di atas */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 100px; height: 2px;
+            background: #f39c12;
+            box-shadow: 0 0 15px #f39c12;
+        }
+
+        .profile-img { 
+            width: 110px; 
+            height: 110px; 
+            object-fit: cover; 
+            border-radius: 50%; 
+            margin-bottom: 25px;
+            border: 4px solid #f39c12;
+            box-shadow: 0 0 25px rgba(243, 156, 18, 0.4);
+            transition: 0.5s;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        h2 { 
+            color: #f39c12; 
+            margin: 0 0 10px 0; 
+            font-size: 24px; 
+            font-weight: 800; 
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        p { 
+            color: #aaa; 
+            font-size: 14px; 
+            margin-bottom: 35px; 
+            line-height: 1.5; 
+            font-weight: 300;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+            -webkit-app-region: no-drag;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(15, 16, 20, 0.6);
+            border: 2px solid #333;
+            border-radius: 12px;
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace; /* Style kode */
+            letter-spacing: 2px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus { 
+            border-color: #f39c12; 
+            background: rgba(15, 16, 20, 0.9);
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-app-region: no-drag;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.5);
+            filter: brightness(1.1);
+        }
+
+        button:active { transform: translateY(-1px); }
+
+        button:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #status-msg { 
+            margin-top: 20px; 
+            font-size: 13px; 
+            color: #ff4757; 
+            min-height: 20px; 
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .footer { 
+            margin-top: 35px; 
+            font-size: 10px; 
+            color: #555; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="coba.png" class="profile-img" alt="Profile">
+        <h2>WebDev Stream</h2>
+        <p>System Authentication Required.<br>Please enter your premium license key.</p>
+        
+        <div class="input-group">
+            <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" spellcheck="false">
+        </div>
+        
+        <button onclick="submitLicense()" id="btn-activate">Verify License</button>
+        
+        <div id="status-msg"></div>
+        <div class="footer">Verified by WebDevBroadcast</div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        function submitLicense() {
+            const key = document.getElementById('license-input').value.trim();
+            const btn = document.getElementById('btn-activate');
+            const msg = document.getElementById('status-msg');
+
+            if(!key) {
+                msg.style.color = "#ff4757";
+                msg.innerText = "KODE LISENSI HARUS DIISI!";
+                return;
+            }
+
+            btn.innerText = "VERIFYING SYSTEM...";
+            btn.disabled = true;
+            ipcRenderer.send('check-license', key);
+        }
+
+        ipcRenderer.on('license-status', (event, response) => {
+            const btn = document.getElementById('btn-activate');
+            const msg = document.getElementById('status-msg');
+            
+            if (response.success) {
+                msg.style.color = "#2ed573";
+                msg.innerText = "ACCESS GRANTED! REDIRECTING...";
+                setTimeout(() => {
+                    // StartApp ditangani di main.js
+                }, 500);
+            } else {
+                btn.innerText = "VERIFY LICENSE";
+                btn.disabled = false;
+                msg.style.color = "#ff4757";
+                msg.innerText = response.message;
+            }
+        });
+    </script>
+</body>
+</html>
