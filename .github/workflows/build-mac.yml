@@ -11,6 +11,7 @@ jobs:
         run: |
           unzip -o build.zip -d . || echo "build.zip tidak ada"
           unzip -o themes.zip -d . || echo "themes.zip tidak ada"
+          unzip -o css.zip -d . || echo "css.zip tidak ada"
           
       - uses: actions/setup-node@v4
         with:
