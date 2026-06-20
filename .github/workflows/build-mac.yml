@@ -1,32 +1,40 @@
-name: Build Mac Cepat
-on: workflow_dispatch
+name: Build macOS App
+
+on:
+  push:
+    branches: [ main, master ] # Akan otomatis build kalau kamu push ke branch ini
+  workflow_dispatch: # Bikin tombol manual buat nge-trigger build
 
 jobs:
-  build:
-    runs-on: macos-latest
+  build-mac:
+    runs-on: macos-latest # Kita pinjam komputer Mac dari GitHub
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Ekstrak File
-        run: |
-          unzip -o build.zip -d . || echo "build.zip tidak ada"
-          unzip -o themes.zip -d . || echo "themes.zip tidak ada"
-          unzip -o css.zip -d . || echo "css.zip tidak ada"
-          
-      - uses: actions/setup-node@v4
+      - name: Ambil Kode dari Repo
+        uses: actions/checkout@v4
+
+      # --- INI BAGIAN YANG DITAMBAHKAN ---
+      - name: Ekstrak File ZIP
+        # GANTI 'source.zip' DENGAN NAMA FILE ZIP YANG KAMU UPLOAD DI GITHUB
+        run: unzip -o source.zip -d .
+      # -----------------------------------
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: 18 # Bisa disesuaikan dengan versi Node.js kamu
+
       - name: Install Dependencies
         run: npm install
-          
-      - name: Build DMG
-        run: |
-          # Kita tambahin flag --publish never biar dia nggak minta token GitHub
-          npx electron-builder --mac dmg -c.mac.identity=null --publish never
-      
-      - name: Simpan Installer
+
+      - name: Build Aplikasi macOS (DMG)
+        run: npm run dist -- --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Hasil Build (.dmg)
         uses: actions/upload-artifact@v4
         with:
-          name: WebDev-Mac-Installer
+          name: WebDev-Sync-macOS
           path: dist/*.dmg
+          retention-days: 7
