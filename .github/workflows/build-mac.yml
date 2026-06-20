@@ -2,27 +2,32 @@ name: Build macOS App
 
 on:
   push:
-    branches: [ main, master ] # Akan otomatis build kalau kamu push ke branch ini
-  workflow_dispatch: # Bikin tombol manual buat nge-trigger build
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build-mac:
-    runs-on: macos-latest # Kita pinjam komputer Mac dari GitHub
+    runs-on: macos-latest
 
     steps:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
 
-      # --- INI BAGIAN YANG DITAMBAHKAN ---
-      - name: Ekstrak File ZIP
-        # GANTI 'source.zip' DENGAN NAMA FILE ZIP YANG KAMU UPLOAD DI GITHUB
-        run: unzip -o source.zip -d .
-      # -----------------------------------
+      - name: Cek File Sebelum Ekstrak
+        run: ls -la
+
+      - name: Ekstrak File ZIP Otomatis
+        # Kode *.zip ini akan otomatis mencari file ZIP apa saja yang kamu upload dan mengekstraknya
+        run: unzip -o *.zip -d .
+
+      - name: Cek File Setelah Ekstrak
+        # Ini untuk memastikan package.json benar-benar ada di luar setelah di-unzip
+        run: ls -la
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18 # Bisa disesuaikan dengan versi Node.js kamu
+          node-version: 18
 
       - name: Install Dependencies
         run: npm install
