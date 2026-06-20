@@ -13,16 +13,12 @@ jobs:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
 
-      - name: Cek File Sebelum Ekstrak
-        run: ls -la
-
-      - name: Ekstrak File ZIP Otomatis
-        # Kode *.zip ini akan otomatis mencari file ZIP apa saja yang kamu upload dan mengekstraknya
-        run: unzip -o *.zip -d .
-
-      - name: Cek File Setelah Ekstrak
-        # Ini untuk memastikan package.json benar-benar ada di luar setelah di-unzip
-        run: ls -la
+      - name: Ekstrak Folder ZIP
+        # Mengekstrak masing-masing folder satu per satu secara berurutan
+        run: |
+          unzip -o build.zip -d .
+          unzip -o themes.zip -d .
+          unzip -o css.zip -d .
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
