@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Musik & Request</title>
+    
+    <script src="/socket.io/socket.io.js"></script>
+
+    <style>
+        /* =========================================
+           BASE STYLES & LAYOUT (FULL COMPACT)
+           ========================================= */
+        body {
+            /* Gradient background mirip index.html */
+            background: linear-gradient(135deg, #131726 0%, #0b0f19 50%, #080a10 100%);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 12px; /* Padding dikecilin */
+            box-sizing: border-box;
+            
+            /* KUNCI HALAMAN BIAR GAK SCROLL KESELURUHAN */
+            height: 100vh;
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Jarak antar card dikecilin */
+            height: 100%; /* Ambil tinggi penuh dari body */
+        }
+
+        /* =========================================
+           GLASSMORPHISM PANEL (CARD)
+           ========================================= */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; /* Lebih membulat pas untuk ukuran kecil */
+            padding: 12px 15px; /* Padding card dikecilin */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Card kedua (Daftar Request) harus flex-grow biar ngisi sisa layar */
+        .panel-list {
+            flex-grow: 1; 
+            overflow: hidden; /* Penting biar isinya gak jebol ke bawah */
+        }
+
+        /* =========================================
+           MEDIA HEADER & STATUS
+           ========================================= */
+        .media-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .now-playing-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
+        .status-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        .status-playing {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+        .status-paused {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* =========================================
+           SONG INFO BOX
+           ========================================= */
+        .song-info-box {
+            margin-bottom: 12px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .song-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-artist {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* =========================================
+           BUTTON CONTROLS
+           ========================================= */
+        .media-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .control-btn {
+            flex: 1;
+            height: 36px; /* Tombol lebih ceper */
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .control-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
+        .control-btn:active { transform: scale(0.96); }
+
+        /* =========================================
+           REQUEST LIST SECTION & CUSTOM SCROLLBAR
+           ========================================= */
+        .request-header {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            font-weight: 700;
+            color: #e2e8f0;
+            letter-spacing: 1px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* AREA SCROLL KHUSUS LIST */
+        #requestList {
+            flex-grow: 1;
+            overflow-y: auto; /* Aktifin scroll vertikal di sini aja */
+            padding-right: 5px; /* Jatah ruang buat scrollbar */
+        }
+
+        /* Custom Scrollbar Styling (Tampilannya elegan) */
+        #requestList::-webkit-scrollbar {
+            width: 4px;
+        }
+        #requestList::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+        #requestList::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        #requestList::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* =========================================
+           COMPACT LIST ITEM (CSS CLASSES)
+           ========================================= */
+        .req-item-drag {
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: grab;
+            border: 1px dashed transparent;
+            transition: background 0.2s, border 0.2s;
+        }
+        .req-item-drag:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .req-item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            overflow: hidden; /* Biar teks ga nabrak tombol */
+        }
+        .req-item-number {
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .req-item-handle {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+        .req-item-text {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .req-item-text b {
+            font-size: 12px;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Tambah ... kalau kepanjangan */
+            max-width: 170px; /* Batasin lebar judul */
+        }
+        .req-item-text small {
+            font-size: 10px;
+            color: #ffb300;
+        }
+        
+        .req-btn-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-mini {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-play-mini { background: #28a745; }
+        .btn-play-mini:hover { background: #218838; }
+        .btn-del-mini { background: #d50000; }
+        .btn-del-mini:hover { background: #c82333; }
+        
+        /* State Kosong */
+        .empty-state {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            padding: 15px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="player-container">
+        
+        <div class="glass-panel">
+            <div class="media-header">
+                <span class="now-playing-text">🎵 NOW PLAYING</span>
+                <span id="status-player" class="status-badge status-playing">PLAYING</span>
+            </div>
+
+            <div class="song-info-box">
+                <div id="current-title" class="song-title">Menunggu Lagu...</div>
+                <div id="current-artist" class="song-artist">-</div>
+            </div>
+
+            <div class="media-controls">
+                <button onclick="kontrolRemote('play')" class="control-btn">▶️ Play</button>
+                <button onclick="kontrolRemote('pause')" class="control-btn">⏸ Pause</button>
+            </div>
+        </div>
+
+        <div class="glass-panel panel-list">
+            <h3 class="request-header">DAFTAR REQUEST MASUK</h3>
+            
+            <div id="requestList">
+                <div class="empty-state">Kosong bosku!</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const socket = io();
+        let localSongQueue = [];
+
+        // ==========================================
+        // 1. FUNGSI NERIMA DATA DARI SERVER
+        // ==========================================
+        socket.on('update-queue', ({ currentSong, songQueue }) => {
+            const requestList = document.getElementById('requestList');
+            if (!requestList) return;
+
+            localSongQueue = songQueue;
+
+            // Update UI Now Playing
+            if (currentSong) {
+                const titleElement = document.getElementById('current-title');
+                const artistElement = document.getElementById('current-artist');
+                const statusBadge = document.getElementById('status-player');
+
+                if (titleElement) titleElement.innerText = currentSong.title || "Unknown Song";
+                if (artistElement) artistElement.innerText = currentSong.artist || `Req by: ${currentSong.requestedBy || "-"}`;
+
+                if (statusBadge) {
+                    statusBadge.innerText = 'PLAYING';
+                    statusBadge.classList.remove('status-paused');
+                    statusBadge.classList.add('status-playing');
+                }
+            }
+
+            // Render Daftar Antrean (Versi Compact dengan Class CSS)
+            if (!localSongQueue.length) {
+                requestList.innerHTML = `<div class="empty-state">Belum ada request masuk bosku.</div>`;
+                return;
+            }
+
+            requestList.innerHTML = localSongQueue.map((song, index) => `
+                <div class="req-item-drag"
+                     draggable="true"
+                     ondragstart="handleDragStart(event, ${index})"
+                     ondragover="handleDragOver(event)"
+                     ondrop="handleDrop(event, ${index})">
+                    
+                    <div class="req-item-info">
+                        <span class="req-item-number">#${index + 1}</span>
+                        <div class="req-item-handle">☰</div>
+                        
+                        <div class="req-item-text">
+                            <b>${song.title}</b>
+                            <small>${song.requestedBy}</small>
+                        </div>
+                    </div>
+
+                    <div class="req-btn-group">
+                        <button class="btn-mini btn-play-mini" onclick="playRequestSong(${song.id}); animateBtn(this, 'play')">▶</button>
+                        <button class="btn-mini btn-del-mini" onclick="deleteSong(${song.id}); animateBtn(this, 'delete')">🗑</button>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        // ==========================================
+        // 2. FUNGSI KONTROL PLAY/PAUSE KE SERVER
+        // ==========================================
+        function kontrolRemote(aksi) {
+            const statusBadge = document.getElementById('status-player');
+            if (aksi === 'play') {
+                statusBadge.innerText = 'PLAYING';
+                statusBadge.classList.remove('status-paused');
+                statusBadge.classList.add('status-playing');
+            } else if (aksi === 'pause') {
+                statusBadge.innerText = 'PAUSED';
+                statusBadge.classList.remove('status-playing');
+                statusBadge.classList.add('status-paused');
+            }
+            if (socket) {
+                socket.emit('kontrol-musik', aksi);
+            }
+        }
+
+        // ==========================================
+        // 3. FUNGSI TOMBOL DALAM LIST
+        // ==========================================
+        function deleteSong(songId) {
+            socket.emit("delete-song", songId);
+        }
+        function playRequestSong(songId) {
+            socket.emit('play-request-song', songId);
+        }
+        function animateBtn(btn, type) {
+            btn.style.transform = "scale(0.85)";
+            btn.style.opacity = "0.7";
+            setTimeout(() => {
+                btn.style.transform = "scale(1)";
+                btn.style.opacity = "1";
+            }, 150);
+
+            if (type === 'play') {
+                btn.style.boxShadow = "0 0 10px rgba(40,167,69,0.8)";
+                setTimeout(() => btn.style.boxShadow = "none", 300);
+            }
+            if (type === 'delete') {
+                btn.style.boxShadow = "0 0 10px rgba(213,0,0,0.8)";
+                setTimeout(() => btn.style.boxShadow = "none", 300);
+            }
+        }
+
+        // ==========================================
+        // 4. FUNGSI DRAG AND DROP
+        // ==========================================
+        function handleDragStart(event, index) {
+            event.dataTransfer.setData("text/plain", index);
+            event.currentTarget.style.opacity = "0.4";
+        }
+        function handleDragOver(event) {
+            event.preventDefault();
+            if (event.currentTarget && event.currentTarget.style) {
+                event.currentTarget.style.border = "1px dashed #ffb300";
+            }
+        }
+        function handleDrop(event, targetIndex) {
+            event.preventDefault();
+            const sourceIndex = parseInt(event.dataTransfer.getData("text/plain"));
+
+            if (sourceIndex !== targetIndex) {
+                const reorderedQueue = [...localSongQueue];
+                const [removedSong] = reorderedQueue.splice(sourceIndex, 1);
+                reorderedQueue.splice(targetIndex, 0, removedSong);
+                socket.emit("reorder-queue", reorderedQueue);
+            }
+        }
+    </script>
+</body>
+</html>
