@@ -4,6 +4,12 @@ const { createClient } = require('@supabase/supabase-js');
 const { machineIdSync } = require('node-machine-id');
 const si = require('systeminformation'); //CONST UNTUK DETEKSI HADWARE
 
+// 🔥 FIX UNTUK MAC OS: Suntik WebSocket ke global Node.js biar Supabase Realtime tidak crash
+try {
+    global.WebSocket = require('ws');
+} catch (e) {
+    console.error("Gagal memuat package 'ws'. Pastikan sudah ada di package.json", e);
+}
 
 // ================== KONFIGURASI ==================
 const supabase = createClient(
@@ -21,7 +27,6 @@ ipcMain.handle('get-hardware-specs', async () => {
     }
 
     try {
-        const si = require('systeminformation');
         const cpu = await si.cpu();
         const gpu = await si.graphics();
         const mem = await si.mem();
@@ -46,7 +51,7 @@ let deviceID = machineIdSync();
 
 app.isQuiting = false;
 
-let karaokeWin; // Tambahkan ini di atas juga boleh, atau gabung di baris let mainWin;
+let karaokeWin; 
 
 // ================== JEMBATAN IPC: BUKA WINDOW KARAOKE PREMIUM ==================
 ipcMain.on('open-karaoke-window', () => {
@@ -180,9 +185,6 @@ function startApp() {
         }
     });
 
-
-    // 🚀 Tampilkan dan Maximize Jendela
-    //mainWin.maximize(); // Membuat aplikasi terbuka full layar otomatis
     mainWin.show();     // Menampilkan jendela setelah di-maximize
 
     // 🚀 Jalankan server
@@ -191,7 +193,6 @@ function startApp() {
     } catch (e) {
         console.log("Server status:", e.message);
     }
-
 
     // Load UI
     setTimeout(() => {
@@ -240,13 +241,10 @@ function startApp() {
 
 // ================== APP READY ==================
 app.whenReady().then(() => {
-    // 1. Matikan menu aplikasi bawaan Electron secara global
-    //Menu.setApplicationMenu(null);
-
     checkAutoLogin();
 });
 
-// 2. 🚀 PINGIN PALING AMPUH: Paksa semua jendela baru (termasuk monitoringchat) untuk menyembunyikan menu bar
+// 2. 🚀 Paksa semua jendela baru untuk menyembunyikan menu bar
 app.on('browser-window-created', (event, window) => {
     window.setMenuBarVisibility(false);
     window.setAutoHideMenuBar(true);
