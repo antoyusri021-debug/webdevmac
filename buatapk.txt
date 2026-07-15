@@ -1,0 +1,14 @@
+pembuatan biasa menggunakan dengan ini
+tinggal : npm run dist
+
+
+Ini untuk versi pembuatan for langsung update ke data github
+
+Pertama kerikkan perintah ini di poewrSell VscCode langsung enter untuk nendaftarkan kode token dari gituhub :
+$env:GH_TOKEN="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"
+
+trus ketikkan kode ini untuk memulai pembuatan aplikasinya :
+npx electron-builder --publish always
+
+ini link untuk cek data apliaksinya di di github :
+https://github.com/antoyusri021-debug/WebDev-Stream-Sync/releases

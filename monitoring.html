@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebDev Chat Monitoring</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* =========================================
+           TEMA BARU: SERASI DENGAN APLIKASI WEBDEV
+           ========================================= */
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(22, 22, 30, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+
+            /* Gradient Utama (Ungu ke Pink) */
+            --gradient-primary: linear-gradient(135deg, #6b46c1, #ec4899);
+            /* Gradient Sekunder (Orange ke Pink) */
+            --gradient-secondary: linear-gradient(135deg, #ff8c00, #ff007f);
+
+            --accent-solid: #ec4899;
+            --accent-glow: rgba(236, 72, 153, 0.3);
+
+            --text-main: #f5f5f5;
+            --text-dim: #9ca3af;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(107, 70, 193, 0.15) 0%, transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        /* HEADER & STATS (Hanya untuk Statistik Live) */
+        .header {
+            padding: 12px;
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stats-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 50px;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+
+        .stats-box:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-1px);
+        }
+
+        .stats-box span {
+            font-size: 11px !important;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff3b30;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff3b30;
+            animation: blink 1.2s infinite;
+        }
+
+        .duration-container {
+            text-align: center;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-left: 5px;
+        }
+
+        #live-timer {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px !important;
+            font-weight: bold;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.2);
+        }
+
+        /* FOOTER CONTROLS (Pindah ke Bawah agar Rapi) */
+        .footer-controls {
+            padding: 10px 12px;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            z-index: 10;
+        }
+
+        .btn {
+            padding: 7px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            transition: all 0.3s ease;
+            color: white;
+            text-transform: none;
+        }
+
+        .btn-test {
+            background: var(--gradient-primary);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-clear {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        .btn-clear:hover {
+            background: #ff3b30;
+            color: white;
+            border-color: #ff3b30;
+            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+        }
+
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 5px 10px;
+            border-radius: 12px;
+            color: var(--text-dim);
+            border: 1px solid var(--card-border);
+        }
+
+        /* FEED (KOTAK CHAT UTAMA) */
+        #feed {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #feed::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #feed::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .row {
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .avatar-container {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 800;
+            color: #e2e8f0;
+            font-size: 11px;
+            letter-spacing: 0.3px;
+        }
+
+        .msg {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-top: 3px;
+            line-height: 1.4;
+        }
+
+        .time {
+            font-size: 9px;
+            color: var(--text-dim);
+            position: absolute;
+            right: 12px;
+            top: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* STATUS CHAT */
+        .row.CHAT {
+            opacity: 0.5;
+            border-color: transparent;
+        }
+
+        .row.CHAT.unread {
+            opacity: 1.0;
+        }
+
+        .row.CHAT.read {
+            opacity: 0.4;
+        }
+
+        .row.CHAT:hover {
+            opacity: 1;
+            transform: translateX(4px);
+            border-color: rgba(236, 72, 153, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* CHAT AKTIF (TERPILIH) */
+        .row.CHAT.active {
+            opacity: 1.0;
+            border: 1px solid transparent;
+            background: linear-gradient(rgba(22, 22, 30, 0.9), rgba(22, 22, 30, 0.9)) padding-box, var(--gradient-primary) border-box;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: scale(1.02);
+            z-index: 2;
+        }
+
+        .row.CHAT.active .user-name {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* SPECIAL ROWS */
+        .row.FOLLOW {
+            border-left: 4px solid #00f2ea;
+            background: linear-gradient(90deg, rgba(0, 242, 234, 0.08) 0%, rgba(22, 22, 30, 0.5) 100%);
+        }
+
+        .row.FOLLOW .user-name {
+            color: #00f2ea;
+        }
+
+        #interaction-box .row {
+            border: 1px solid var(--accent-glow);
+            background: rgba(236, 72, 153, 0.05);
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 8px #ff3b30;
+            }
+
+            50% {
+                opacity: 0.3;
+                box-shadow: 0 0 2px #ff3b30;
+            }
+        }
+
+        /* ANIMASI TERBANG (KEYFRAMES) */
+        @keyframes flyUp {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 40px) scale(0.7);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -20px) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -100px) scale(0.9);
+            }
+        }
+
+        .floating-gift,
+        .floating-follow,
+        .floating-share {
+            position: fixed !important;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 12px;
+            z-index: 100000;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            animation: flyUp 4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .floating-gift {
+            bottom: 100px;
+            background: var(--gradient-primary);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .floating-gift img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+
+        .floating-follow {
+            bottom: 140px;
+            background: linear-gradient(135deg, #00f2ea, #0b0c10);
+            border-color: #00f2ea;
+            box-shadow: 0 0 15px rgba(0, 242, 234, 0.3);
+        }
+
+        .floating-follow .icon-user {
+            background: rgba(255, 255, 255, 0.2);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .floating-share {
+            bottom: 180px;
+            background: var(--gradient-secondary);
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="stats-container">
+
+            <!-- Viewers / Penonton -->
+            <div class="stats-box">
+                <div class="live-dot"></div>
+                <!-- Kalau mau pakai icon mata juga bisa tambahin: <i class="fa-solid fa-eye"></i> -->
+                <span id="viewer-count" style="font-weight:800; font-size:13px;">0</span>
+            </div>
+
+            <!-- Likes -->
+            <div class="stats-box" style="border-color: rgba(255, 45, 85, 0.2);">
+                <i class="fa-solid fa-heart" style="color: #ff2d55;"></i>
+                <span id="total-like-count" style="font-weight:800; font-size:13px; color: #ff2d55;">0</span>
+            </div>
+
+            <!-- Sebaran / Shares -->
+            <div class="stats-box" style="border-color: rgba(107, 70, 193, 0.3);">
+                <i class="fa-solid fa-share-nodes" style="color: #d6bcfa;"></i>
+                <span id="total-sebaran" style="font-weight:800; font-size:13px; color: #d6bcfa;">0</span>
+            </div>
+
+            <!-- Followers -->
+            <div class="stats-box" style="border-color: rgba(0, 242, 234, 0.2);">
+                <i class="fa-solid fa-user-plus" style="color: #00f2ea;"></i>
+                <span id="total-follower-count" style="font-weight:800; font-size:13px; color: #00f2ea;">0</span>
+            </div>
+
+            <!-- Durasi Live -->
+            <div class="duration-container">
+                <span
+                    style="font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 1px; display:block;">Durasi
+                    Live</span>
+                <div id="live-timer">00:00:00</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="interaction-box" style="padding: 10px 10px 0 10px;"></div>
+
+    <div id="feed"></div>
+
+    <div class="footer-controls">
+        <button class="btn btn-test" onclick="sendTestChat()" title="Chat Test">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+
+        <button id="btn-test-gift" class="btn btn-test" title="Test Gift">
+            <i class="fa-solid fa-gift"></i>
+        </button>
+
+        <button id="btn-test-join" class="btn btn-test" onclick="sendTestJoin()" title="Test Join">
+            <i class="fa-solid fa-right-to-bracket"></i>
+        </button>
+
+        <button class="btn btn-clear" onclick="document.getElementById('feed').innerHTML=''" title="Bersihkan">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+        <div class="switch-group"><input type="checkbox" id="autoPost"> <span>AUTO</span></div>
+        <div class="switch-group"><input type="checkbox" id="ttsOn"> <span>🎙️ TTS</span></div>
+        <div class="switch-group" style="gap: 5px;">
+            <input type="checkbox" id="soundOn" checked>
+            <span>🔊</span>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.6"
+                style="width: 50px; cursor: pointer; accent-color: var(--accent-solid);">
+        </div>
+        <div class="switch-group">
+            <span>🔔</span>
+            <select id="soundSelect" autocomplete="off"
+                style="background: transparent; border: none; color: #aaa; font-size: 9px; outline: none; cursor: pointer;">
+                <option value="notif1" selected>Kristal tabure (Default)</option>
+                <option value="notif6">Notif 6</option>
+                <option value="notif2">Kristal</option>
+                <option value="notif3">Subtle Notification</option>
+                <option value="notif4">Click</option>
+                <option value="notif5">Smooth</option>
+                <option value="notif7">Modern & Clean</option>
+                <option value="notif8">Soft Bubble</option>
+                <option value="notif9">Alert Pop</option>
+                <option value="notif10">Bright & Happy</option>
+                <option value="notif11">Energetic Chime</option>
+                <option value="notif12">Success Sparkle</option>
+                <option value="notif13">Positive Alert</option>
+                <option value="notif14">Achievement Sound</option>
+                <option value="notif15">Upbeat Digital</option>
+            </select>
+        </div>
+
+        <div class="remote-overlay-controls"
+            style="padding: 10px; display: flex; justify-content: center; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+            <button onclick="sendVisibilityCommand(true)" class="btn btn-test"
+                style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); width: 100%;"
+                title="Tampilkan Overlay">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+            <button onclick="sendVisibilityCommand(false)" class="btn btn-test"
+                style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); width: 100%;"
+                title="Sembunyikan Overlay">
+                <i class="fa-solid fa-eye-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let lastOverlay = 0;
+        const socket = io();
+
+        document.getElementById("autoPost").addEventListener("change", () => {
+            document.querySelectorAll('.row.CHAT.active')
+                .forEach(el => el.classList.remove('active'));
+        });
+
+        let newFollowerCount = 0;
+        const soundList = {
+            notif1: 'https://assets.mixkit.co/active_storage/sfx/1109/1109-preview.mp3',
+            notif2: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3',
+            notif3: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+            notif4: 'https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3',
+            notif5: 'https://assets.mixkit.co/active_storage/sfx/1114/1114-preview.mp3',
+            notif6: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3',
+            notif7: 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
+            notif8: 'https://assets.mixkit.co/active_storage/sfx/2359/2359-preview.mp3',
+            notif9: 'https://assets.mixkit.co/active_storage/sfx/1110/1110-preview.mp3',
+            notif10: 'https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3',
+            notif11: 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3',
+            notif12: 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3',
+            notif13: 'https://assets.mixkit.co/active_storage/sfx/2020/2020-preview.mp3',
+            notif14: 'https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3',
+            notif15: 'https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3'
+        };
+
+        let currentSound = soundList.notif6;
+        const audio = new Audio(currentSound);
+        const volSlider = document.getElementById('volumeControl');
+
+        audio.volume = volSlider.value;
+        volSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+
+        const soundSelect = document.getElementById('soundSelect');
+
+        // --- TAMBAHAN BARU: Paksa sinkronisasi UI dan Audio di awal ---
+        soundSelect.value = 'notif1'; // Kunci UI ke notif1
+        currentSound = soundList[soundSelect.value];
+        audio.src = currentSound; // Paksa audio langsung pakai notif1
+        // --------------------------------------------------------------
+
+        soundSelect.addEventListener('change', (e) => {
+            currentSound = soundList[e.target.value];
+            audio.src = currentSound;
+        });
+
+        let voices = [];
+        function loadVoices() {
+            voices = window.speechSynthesis.getVoices();
+        }
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices();
+
+        function speakChat(name, message) {
+            const isTTS = document.getElementById('ttsOn').checked;
+            if (!isTTS) return;
+
+            const cleanMsg = message.replace(/[^\w\s]/gi, '');
+            const textToSpeak = `${name} bilang: ${cleanMsg}`;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+            const vol = document.getElementById('volumeControl').value;
+            utterance.volume = vol;
+
+            if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+            let selectedVoice = voices.find(v => v.lang.includes('id') || v.name.toLowerCase().includes('indonesia'));
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = 'id-ID';
+            }
+
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
+
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        window.speechSynthesis.getVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        function sendTestChat() {
+            const listPesan = [
+                "Ping aman bang? Punya gue merah mulu nih, kabelnya kesandung kebijakan baru kayaknya 😅",
+                "Wah gameplay lu santai bener bang, persis pejabat kalo lagi rapat paripurna. Zzz...",
+                "Gaji dipotong mulu nih buat tabungan antah berantah, mending nontonin lu aja bang dapet hiburan gratis wkwk.",
+                "Bang main game offroad dong, biar berasa simulasi lewat jalan rusak lintas provinsi depan rumah 🔥",
+                "GG bang! Lebih GG lagi kalo harga beras ikutan turun sih, tapi yaudahlah mari kita mabar aja 🚀",
+                "Mantap overlaynya! Kelihatan jauh lebih transparan dari anggaran proyek nih bro. GGWP!",
+                "Bagi bansos dong bang! Eh salah lapak deng, di sini mah aman dari sunatan ya bang? 😂",
+                "Buset itu musuhnya di-banned semua? Udah berasa kementerian aja main blokir wkwkwk.",
+                "Bang, slot mabar penuh ya? Kalo pake jalur Ordal (Orang Dalam) bisa langsung masuk party nggak nih? 🏃‍♂️💨",
+                "Main mulu bang, awas lho ntar diamond/CP di akun lu tiba-tiba kena pajak hiburan wkwkwk.",
+                "Buset itu damagenya nembus armor bang! Udah persis kayak hukum aja nih, tajemnya nembus ke bawah doang 🗿",
+                "Tadi di awal streaming janjinya mau bagi-bagi giveaway bang? Jangan kayak caleg dong ah, habis kepilih lupa janji wkwkwk.",
+                "Servernya putus-putus nih bang. Kayaknya bentar lagi game lu diblokir gara-gara belum daftar PSE deh 😂",
+                "Bang ajarin farming gold yang cepet dong. Di real life nyari kerjaan susah bener, syaratnya lulusan baru tapi pengalaman 10 tahun 💀",
+                "Kendaraan di game lu boros bensin nggak bang? Soalnya di sini BBM naik mulu bikin pusing mikirinnya.",
+                "Itemnya kok beli dari shop luar negeri semua bang? Katanya suruh cinta produk dalam negeri, padahal yang ngomong barangnya impor semua wkwk.",
+                "Sengaja begadang nonton live lu bang, soalnya kalo tidur suka mimpi buruk ditagih cicilan sama potongan pajak bulanan 💸",
+                "Wah lu AFK bentar aja markas langsung hancur ya bang. Mirip tatanan kota kalo gak diawasin netizen sehari aja."
+            ];
+
+            const pesanAcak = listPesan[Math.floor(Math.random() * listPesan.length)];
+
+            const dummyData = {
+                user: "Partner_Brow",
+                nickname: "Webdev Broadcast 🔥",
+                message: pesanAcak,
+                profilePictureUrl: "coba.png",
+                isTest: true
+            };
+
+            addActivity('CHAT', dummyData);
+        }
+
+        function sendTestJoin() {
+            const listNamaJoin = [
+                "Asep Kopling", "Budi Gaming", "Siti Mabar",
+                "Pejabat Nyamar", "Camat Santuy", "Rina Sepeda"
+            ];
+            const namaAcak = listNamaJoin[Math.floor(Math.random() * listNamaJoin.length)];
+
+            const dummyJoinData = {
+                uniqueId: "user_" + Math.floor(Math.random() * 10000),
+                nickname: namaAcak,
+                profilePictureUrl: "coba.png",
+                type: 'JOIN',
+                isTest: true
+            };
+
+            addActivity('JOIN', { ...dummyJoinData, message: '🚪 Bergabung ke Live' });
+
+            const activeSocket = typeof socket !== 'undefined' ? socket : (typeof window.socket !== 'undefined' ? window.socket : null);
+            if (activeSocket) {
+                activeSocket.emit('simulateJoin', dummyJoinData);
+            }
+        }
+
+        function formatK(num) {
+            return num >= 1000 ? (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : num;
+        }
+
+        socket.on('update-sebaran', (data) => {
+            const el = document.getElementById('total-sebaran');
+            if (el) el.innerText = formatK(data.total || 0);
+        });
+
+        socket.on('update-viewer-count', d => {
+            const el = document.getElementById('viewer-count');
+            if (el) {
+                const count = (typeof d === 'object' && d !== null) ? d.count : d;
+                el.innerText = formatK(count || 0);
+            }
+        });
+
+        socket.off('like-stats').on('like-stats', (data) => {
+            const el = document.getElementById('total-like-count');
+            if (el) el.innerText = formatK(data.totalLikeCount || 0);
+        });
+
+        socket.on('update-follower-count', (data) => {
+            const el = document.getElementById('total-follower-count');
+            if (el) el.innerText = formatK(data.total || 0);
+        });
+
+        function addActivity(type, data) {
+            const isAuto = document.getElementById('autoPost').checked;
+            const feed = document.getElementById('feed');
+            const interactionBox = document.getElementById('interaction-box');
+            const profilePic = data.profilePictureUrl || data.profilePic || 'https://www.w3schools.com/howto/img_avatar.png';
+
+            if (type !== 'CHAT') {
+                interactionBox.innerHTML = `
+                <div class="row ${type}" style="border-left: 4px solid var(--accent-solid); margin-bottom: 5px; display: flex; align-items: center; padding: 5px;">
+                    <img src="${profilePic}" style="width:30px; height:30px; border-radius:50%; margin-right:10px;">
+                    <div class="content">
+                        <div class="user-name" style="font-size:12px; font-weight:bold;">${data.nickname || data.uniqueId}</div>
+                        <div class="msg" style="font-size:11px; color:var(--accent-solid)">${data.message}</div>
+                    </div>
+                </div>`;
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.className = `row CHAT unread`;
+            div.style.cursor = 'pointer';
+
+            div.onclick = function () {
+                if (data.giftName || (data.message && data.message.includes('🎁'))) return;
+
+                document.querySelectorAll('.row.CHAT.active').forEach(el => {
+                    el.classList.remove('active');
+                    el.classList.add('read');
+                });
+
+                div.classList.remove('unread', 'read');
+                div.classList.add('active');
+
+                socket.emit('send-to-overlay', { ...data, profilePictureUrl: profilePic });
+            };
+
+            // FIX: Pembersihan penulisan otomatis agar filter Gift berjalan sempurna
+            if (isAuto) {
+                if (!(data.giftName || (data.message && data.message.includes('🎁')))) {
+                    document.querySelectorAll('.row.CHAT.active').forEach(el => el.classList.remove('active'));
+                    socket.emit('send-to-overlay', { ...data, profilePictureUrl: profilePic });
+                }
+            }
+
+            div.innerHTML = `
+            <div class="avatar-container"><img src="${profilePic}" class="avatar-img"></div>
+            <div class="content">
+                <span class="time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <div class="user-name">${data.nickname || data.uniqueId}</div>
+                <div class="msg">${data.message}</div>
+            </div>`;
+
+            speakChat(data.nickname || data.uniqueId, data.message);
+
+            if (document.getElementById('soundOn').checked) {
+                audio.currentTime = 0;
+                audio.play().catch(() => { });
+            }
+
+            feed.prepend(div);
+            if (feed.children.length > 30) feed.lastChild.remove();
+        }
+
+        socket.off('new-chat-monitor').on('new-chat-monitor', d => addActivity('CHAT', d));
+
+        socket.on('display-chat', (data) => {
+            if (!data.comment) return;
+            addActivity('CHAT', { ...data, message: data.comment });
+        });
+
+        socket.off('new-gift-monitor').on('new-gift-monitor', d => {
+            const pemanggil = d.nickname || d.uniqueId || "User";
+            showFloatingGift(pemanggil, d.giftName, d.count);
+            addActivity('GIFT', { ...d, message: `🎁 Mengirim ${d.giftName} x${d.count}` });
+        });
+
+        socket.off('new-social-monitor').on('new-social-monitor', d => {
+            let msg = `👤 Melakukan ${d.type.toLowerCase()}`;
+            if (d.type === 'LIKE') msg = `❤️ Tap-tap layar`;
+            if (d.type === 'SHARE') {
+                msg = `🔗 Membagikan Live`;
+                showFloatingShare(d.nickname || d.uniqueId);
+            }
+            if (d.type === 'FOLLOW') {
+                msg = `✅ Mulai mengikuti Anda!`;
+                newFollowerCount++;
+                const followerEl = document.getElementById('total-follower-count');
+                if (followerEl) {
+                    followerEl.innerText = newFollowerCount.toLocaleString('id-ID');
+                }
+            }
+            addActivity(d.type, { ...d, message: msg });
+        });
+
+        socket.off('new-join-monitor').on('new-join-monitor', d => addActivity('JOIN', { ...d, message: '🚪 Bergabung ke Live' }));
+
+        socket.off('tiktok-connected').on('tiktok-connected', (data) => {
+            if (data && data.startTime) startLiveTimer(data.startTime);
+        });
+
+        socket.off('status').on('status', (msg) => {
+            const statusEl = document.getElementById('status-text');
+            if (statusEl) {
+                statusEl.innerText = msg;
+                statusEl.style.color = msg.includes('Mencoba') ? '#ffaa00' : (msg.includes('Tersambung') ? '#00ff00' : '#ff0000');
+            }
+        });
+
+        socket.off('tiktok-disconnected').on('tiktok-disconnected', () => stopLiveTimer());
+
+        let startTime = null;
+        let timerInterval = null;
+
+        function startLiveTimer(serverStartTime) {
+            if (timerInterval) clearInterval(timerInterval);
+            if (!serverStartTime || isNaN(serverStartTime)) return;
+
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const diff = Math.floor((now - serverStartTime) / 1000);
+                const totalSeconds = Math.max(0, diff);
+
+                const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+                const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+                const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+
+                const el = document.getElementById('live-timer');
+                if (el) {
+                    el.innerText = `${hours}:${minutes}:${seconds}`;
+                }
+            }, 1000);
+        }
+
+        function stopLiveTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            startTime = null;
+            const el = document.getElementById('live-timer');
+            if (el) el.innerText = "00:00:00";
+        }
+
+        function showFloatingGift(nickname, giftName, count, giftIcon) {
+            const floatDiv = document.createElement('div');
+            floatDiv.className = 'floating-gift';
+
+            const randomLeft = Math.floor(Math.random() * (70 - 30 + 1)) + 30;
+            floatDiv.style.left = randomLeft + '%';
+
+            const iconHtml = giftIcon
+                ? `<img src="${giftIcon}" alt="gift">`
+                : `<span style="font-size:24px;">🎁</span>`;
+
+            floatDiv.innerHTML = `
+                ${iconHtml}
+                <span><b>${nickname}</b> mengirim <b>${giftName} x${count}</b></span>
+            `;
+
+            document.body.appendChild(floatDiv);
+            setTimeout(() => floatDiv.remove(), 4000);
+        }
+
+        function showFloatingFollow(nickname) {
+            const floatDiv = document.createElement('div');
+            floatDiv.className = 'floating-follow';
+
+            const randomLeft = Math.floor(Math.random() * (65 - 35 + 1)) + 35;
+            floatDiv.style.left = randomLeft + '%';
+            floatDiv.style.bottom = '150px';
+            floatDiv.style.zIndex = '100001';
+
+            floatDiv.innerHTML = `
+                <div class="icon-user"><i class="fas fa-user-plus"></i></div>
+                <span><b>${nickname}</b> Menjadi Pengikut! ✨</span>
+            `;
+
+            document.body.appendChild(floatDiv);
+            setTimeout(() => floatDiv.remove(), 4000);
+        }
+
+        function showFloatingShare(nickname) {
+            const floatDiv = document.createElement('div');
+            floatDiv.className = 'floating-share';
+            floatDiv.style.position = 'fixed';
+            floatDiv.style.zIndex = '9999';
+
+            const randomLeft = Math.floor(Math.random() * (60 - 40 + 1)) + 40;
+            floatDiv.style.left = randomLeft + '%';
+
+            floatDiv.innerHTML = `<span>🔗 <b>${nickname}</b> Membagikan Live!</span>`;
+
+            document.body.appendChild(floatDiv);
+            setTimeout(() => floatDiv.remove(), 4000);
+        }
+
+        const mockGiftEvent = {
+            userId: "123456789",
+            uniqueId: "kreator_test",
+            nickname: "Tester Ganteng",
+            giftId: 5655,
+            giftName: "Rose",
+            repeatCount: 1,
+            diamondCount: 1,
+            giftPictureUrl: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast...",
+            profilePictureUrl: "https://www.w3schools.com/howto/img_avatar.png"
+        };
+
+        function handleGiftEvent(data) {
+            console.log(`[GIFT] ${data.nickname} mengirim ${data.giftName} x${data.repeatCount || data.count}`);
+            if (data.giftName === "Rose" && typeof triggerOverlayAnimation === "function") {
+                triggerOverlayAnimation(data);
+            }
+            appendGiftToDocChat(data);
+        }
+
+        function appendGiftToDocChat(data) {
+            const chatContainer = document.getElementById('chat-container-id');
+            if (!chatContainer) return;
+
+            const giftElement = document.createElement('div');
+            giftElement.className = 'chat-message gift-alert';
+
+            const name = data.nickname || data.uniqueId || "User";
+            const count = data.repeatCount || data.count || 1;
+            const gift = data.giftName || "Gift";
+
+            giftElement.innerHTML = `
+                <div class="message-content" style="border: 1px solid #ff428c; padding: 8px; border-radius: 8px; margin-bottom: 5px; background: rgba(255, 66, 140, 0.05);">
+                    🎁 <strong>${name}</strong> mengirim <b>${count}x ${gift}</b>
+                </div>
+            `;
+
+            chatContainer.appendChild(giftElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        const btnTest = document.getElementById('btn-test-gift');
+        if (btnTest) {
+            btnTest.addEventListener('click', () => {
+                const activeSocket = typeof socket !== 'undefined' ? socket : (typeof window.socket !== 'undefined' ? window.socket : null);
+                if (activeSocket && typeof activeSocket.emit === 'function') {
+                    activeSocket.emit('simulateGift', mockGiftEvent);
+                } else {
+                    handleGiftEvent(mockGiftEvent);
+                }
+            });
+        }
+
+        // =============================================================
+        // FUNGSI REMOTE VISIBILITY (FIXED: MULTI-CHANNEL TRANSMISSION)
+        // =============================================================
+        function sendVisibilityCommand(isVisible) {
+            const activeSocket = typeof socket !== 'undefined' ? socket : (typeof window.socket !== 'undefined' ? window.socket : null);
+
+            // Jalur 1: Kirim lewat Socket Server (Untuk Mode Live / OBS Browser Source)
+            if (activeSocket && typeof activeSocket.emit === 'function') {
+                // Tembak ganda nama event-nya biar pasti ketangkap engine overlay terbaru
+                activeSocket.emit('toggle-chat-visibility', isVisible);
+                activeSocket.emit('toggle-visibility', isVisible);
+                console.log("Remote Control Sent via Socket: " + isVisible);
+            }
+
+            // Jalur 2: Tembak langsung ke Iframe (Untuk Mode Preview Modal di Dashboard)
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'toggle-visibility',
+                        visible: isVisible
+                    }, '*');
+                } catch (e) {
+                    console.error("Gagal menembus postMessage iframe preview:", e);
+                }
+            });
+
+            // Feedback visual log di monitor panel biar ketahuan command berjalan
+            const feed = document.getElementById('feed');
+            if (feed) {
+                const statusMsg = document.createElement('div');
+                statusMsg.style = "text-align: center; font-size: 11px; color: #ffaa00; margin: 6px 0; font-weight: bold; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 4px;";
+                statusMsg.innerText = `📡 Perintah Remote: Overlay ${isVisible ? "DITAMPILKAN 🟢" : "DISEMBUNYIKAN 🔴"}`;
+                feed.prepend(statusMsg);
+                if (feed.children.length > 30) feed.lastChild.remove();
+            }
+        }
+    </script>
+</body>
+
+</html>
