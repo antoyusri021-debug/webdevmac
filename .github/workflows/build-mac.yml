@@ -14,24 +14,31 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Ekstrak Folder ZIP
-        # Mengekstrak masing-masing folder satu per satu secara berurutan
+        # Mengekstrak SEMUA 5 file zip lo agar lengkap tanpa ada file logic yang tertinggal
         run: |
           unzip -o build.zip -d .
           unzip -o themes.zip -d .
           unzip -o css.zip -d .
+          unzip -o js.zip -d .
+          unzip -o tools.zip -d .
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        # Menggunakan --legacy-peer-deps agar instalasi library tidak bentrok/error di server
+        run: npm install --legacy-peer-deps
 
       - name: Build Aplikasi macOS (DMG)
+        # CSC_IDENTITY_AUTO_DISCOVERY: false wajib dipasang biar build sukses tanpa akun Apple Developer $99/tahun
         run: npm run dist -- --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload Hasil Build (.dmg)
         uses: actions/upload-artifact@v4
