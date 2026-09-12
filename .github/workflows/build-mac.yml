@@ -8,13 +8,14 @@ on:
 jobs:
   build-mac:
     runs-on: macos-latest
+    permissions:
+      contents: write # Wajib ada agar sistem bisa membuat Release
 
     steps:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
 
       - name: Ekstrak Folder ZIP
-        # Mengekstrak SEMUA 5 file zip lo agar lengkap tanpa ada file logic yang tertinggal
         run: |
           unzip -o build.zip -d .
           unzip -o themes.zip -d .
@@ -29,20 +30,21 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        # Menggunakan --legacy-peer-deps agar instalasi library tidak bentrok/error di server
         run: npm install --legacy-peer-deps
 
       - name: Build Aplikasi macOS (DMG)
-        # CSC_IDENTITY_AUTO_DISCOVERY: false wajib dipasang biar build sukses tanpa akun Apple Developer $99/tahun
         run: npm run dist -- --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload Hasil Build (.dmg)
-        uses: actions/upload-artifact@v4
+      # Mengunggah hasil build langsung ke GitHub Releases (Tanpa Batas Kuota Storage)
+      - name: Upload ke GitHub Releases
+        uses: softprops/action-gh-release@v2
         with:
-          name: WebDev-Sync-macOS
-          path: dist/*.dmg
-          retention-days: 7
+          files: dist/*.dmg
+          tag_name: v1.0.${{ github.run_number }}
+          name: Build macOS v1.0.${{ github.run_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
