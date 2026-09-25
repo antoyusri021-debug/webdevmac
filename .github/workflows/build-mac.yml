@@ -32,14 +32,14 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build Aplikasi macOS (DMG)
-        run: npm run dist -- --mac
+      - name: Build Aplikasi macOS (DMG - Intel & ARM64)
+        run: npm run dist -- --mac --x64 --arm64
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      # Mengunggah hasil build langsung ke GitHub Releases (Tanpa Batas Kuota Storage)
+      # Mengunggah hasil build langsung ke GitHub Releases
       - name: Upload ke GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
