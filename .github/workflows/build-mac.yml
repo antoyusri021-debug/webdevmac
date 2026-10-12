@@ -2,32 +2,53 @@ name: Build macOS App
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
   build-mac:
     runs-on: macos-latest
     permissions:
-      contents: write # Wajib ada agar sistem bisa membuat Release
+      contents: write
 
     steps:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
 
-      - name: Ekstrak Folder ZIP
+      - name: Periksa ruang disk dan ekstrak ZIP
+        shell: bash
         run: |
-          unzip -o build.zip -d .
-          unzip -o themes.zip -d .
-          unzip -o css.zip -d .
-          unzip -o js.zip -d .
-          unzip -o tools.zip -d .
+          set -euo pipefail
+
+          echo "Ruang disk sebelum ekstraksi:"
+          df -h .
+
+          archives=(build.zip themes.zip css.zip js.zip tools.zip)
+
+          for archive in "${archives[@]}"; do
+            if [[ ! -f "$archive" ]]; then
+              echo "::error::File wajib tidak ditemukan: $archive"
+              exit 1
+            fi
+
+            echo "Memeriksa $archive..."
+            unzip -tq "$archive"
+
+            echo "Mengekstrak $archive..."
+            unzip -oq "$archive" -d .
+
+            echo "Menghapus arsip $archive untuk menghemat ruang disk..."
+            rm "$archive"
+
+            echo "Ruang disk setelah $archive:"
+            df -h .
+          done
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'npm'
+          cache: npm
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
@@ -36,15 +57,14 @@ jobs:
         run: npm run dist -- --mac --x64 --arm64
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      # Mengunggah hasil build langsung ke GitHub Releases
       - name: Upload ke GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.dmg
           tag_name: v1.0.${{ github.run_number }}
           name: Build macOS v1.0.${{ github.run_number }}
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
