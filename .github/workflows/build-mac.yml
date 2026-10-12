@@ -2,78 +2,47 @@ name: Build macOS App
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build-mac:
     runs-on: macos-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
 
-      - name: Periksa file dan folder aplikasi
-        shell: bash
+      - name: Ekstrak Folder ZIP
+        # Mengekstrak SEMUA 5 file zip lo agar lengkap tanpa ada file logic yang tertinggal
         run: |
-          set -euo pipefail
-
-          for path in \
-            package.json \
-            package-lock.json \
-            build \
-            themes \
-            css \
-            js \
-            tools
-          do
-            if [[ ! -e "$path" ]]; then
-              echo "::error::File atau folder wajib tidak ditemukan di root repo: $path"
-              exit 1
-            fi
-          done
-
-          echo "File dan folder aplikasi ditemukan."
-          echo "Ruang disk sebelum install/build:"
-          df -h /
+          unzip -o build.zip -d .
+          unzip -o themes.zip -d .
+          unzip -o css.zip -d .
+          unzip -o js.zip -d .
+          unzip -o tools.zip -d .
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
+          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci --legacy-peer-deps
+        # Menggunakan --legacy-peer-deps agar instalasi library tidak bentrok/error di server
+        run: npm install --legacy-peer-deps
 
-      - name: Build Aplikasi macOS (DMG - Intel & ARM64)
-        run: npm run dist -- --mac --x64 --arm64
+      - name: Build Aplikasi macOS (DMG)
+        # CSC_IDENTITY_AUTO_DISCOVERY: false wajib dipasang biar build sukses tanpa akun Apple Developer $99/tahun
+        run: npm run dist -- --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Periksa hasil DMG
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if ! compgen -G "dist/*.dmg" > /dev/null; then
-            echo "::error::File DMG tidak ditemukan di folder dist."
-            echo "Isi folder dist:"
-            ls -lah dist/ || true
-            exit 1
-          fi
-
-          ls -lah dist/*.dmg
-
-      - name: Upload ke GitHub Releases
-        uses: softprops/action-gh-release@v2
+      - name: Upload Hasil Build (.dmg)
+        uses: actions/upload-artifact@v4
         with:
-          files: dist/*.dmg
-          tag_name: v1.0.${{ github.run_number }}
-          name: Build macOS v1.0.${{ github.run_number }}
-          fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: WebDev-Sync-macOS
+          path: dist/*.dmg
+          retention-days: 7
