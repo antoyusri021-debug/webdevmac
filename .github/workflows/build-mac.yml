@@ -9,6 +9,10 @@ jobs:
   build-mac:
     runs-on: macos-latest
 
+    # Izin penting agar GitHub Actions bisa menulis/membuat rilis di repository
+    permissions:
+      contents: write
+
     steps:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
@@ -52,9 +56,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload Hasil Build (.dmg)
+      - name: Upload Hasil Build (.dmg) ke Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: WebDev-Sync-macOS
           path: dist/*.dmg
           retention-days: 7
+
+      - name: Rilis Otomatis ke GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.dmg
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Aplikasi macOS v1.0.${{ github.run_number }}"
+          body: "Rilis otomatis aplikasi macOS dari GitHub Actions build #${{ github.run_number }}."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
