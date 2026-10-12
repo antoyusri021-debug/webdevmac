@@ -14,13 +14,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Ekstrak Folder ZIP
-        # Mengekstrak SEMUA 5 file zip lo agar lengkap tanpa ada file logic yang tertinggal
+        # Menggunakan Python agar proses ekstraksi 5 file zip aman dari error atribut/karakter khusus
         run: |
-          unzip -o build.zip -d .
-          unzip -o themes.zip -d .
-          unzip -o css.zip -d .
-          unzip -o js.zip -d .
-          unzip -o tools.zip -d .
+          python3 -c "
+          import zipfile
+          import os
+
+          zip_files = ['build.zip', 'themes.zip', 'css.zip', 'js.zip', 'tools.zip']
+          for zf in zip_files:
+              if os.path.exists(zf):
+                  print(f'Mengekstrak {zf}...')
+                  with zipfile.ZipFile(zf, 'r') as zip_ref:
+                      for file_info in zip_ref.infolist():
+                          try:
+                              zip_ref.extract(file_info, '.')
+                          except Exception as e:
+                              print(f'Peringatan pada file {file_info.filename}: {e}')
+              else:
+                  print(f'File {zf} tidak ditemukan, melewati...')
+          "
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
