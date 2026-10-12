@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dock Musik OBS</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d12;
+      --panel: #141720;
+      --line: rgba(255, 255, 255, .09);
+      --text: #f5f7fb;
+      --muted: #9aa3b2;
+      --red: #ff5964;
+      --gold: #fbbf24
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif
+    }
+
+    body {
+      padding: 16px;
+      background: radial-gradient(ellipse at 50% -15%, rgba(239, 68, 68, .15), transparent 45%), var(--bg)
+    }
+
+    .dock {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 1px 4px
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: -.02em
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #ff5964, #991b1b);
+      font-size: 17px
+    }
+
+    .connection {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .08em
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #737b89
+    }
+
+    .dot.on {
+      background: #22c55e;
+      box-shadow: 0 0 9px #22c55e
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(20, 23, 32, .96);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .2)
+    }
+
+    .now {
+      padding: 15px
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ff9299;
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: .13em;
+      text-transform: uppercase
+    }
+
+    .song-main {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-top: 13px;
+      min-width: 0
+    }
+
+    .cover {
+      width: 66px;
+      height: 66px;
+      flex: 0 0 66px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #33171b, #20232d);
+      color: #ff8b93;
+      font-size: 23px
+    }
+
+    .cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .meta {
+      min-width: 0;
+      flex: 1
+    }
+
+    .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 17px;
+      font-weight: 820;
+      letter-spacing: -.025em
+    }
+
+    .byline {
+      overflow: hidden;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .status {
+      display: inline-flex;
+      margin-top: 9px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .045);
+      color: #d8deea;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .08em
+    }
+
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line)
+    }
+
+    .audio-toggle {
+      min-width: 104px;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 11px;
+      background: var(--red);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer
+    }
+
+    .audio-toggle:hover {
+      filter: brightness(1.08)
+    }
+
+    .audio-hint {
+      flex: 1;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.4
+    }
+
+    .volume {
+      width: 110px;
+      accent-color: var(--red)
+    }
+
+    .volume-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-variant-numeric: tabular-nums
+    }
+
+    .queue {
+      padding: 0 14px 8px
+    }
+
+    .queue-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 1px 11px
+    }
+
+    .queue-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 850
+    }
+
+    .queue-count {
+      color: var(--muted);
+      font-size: 10px
+    }
+
+    .items {
+      display: grid
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 25px minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      padding: 11px 2px;
+      border-top: 1px solid var(--line)
+    }
+
+    .num {
+      color: #ff9299;
+      font-size: 11px;
+      font-weight: 850;
+      text-align: center
+    }
+
+    .song {
+      min-width: 0
+    }
+
+    .item-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .requester {
+      overflow: hidden;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .vvip {
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 850
+    }
+
+    .move-controls {
+      display: flex;
+      gap: 4px
+    }
+
+    .move-btn {
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .045);
+      color: #dce2eb;
+      font-size: 12px;
+      cursor: pointer
+    }
+
+    .move-btn:hover:not(:disabled) {
+      border-color: rgba(255, 89, 100, .5);
+      background: rgba(255, 89, 100, .13);
+      color: #fff
+    }
+
+    .move-btn:disabled {
+      opacity: .3;
+      cursor: default
+    }
+
+    .empty {
+      padding: 17px 4px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center
+    }
+
+    .notice {
+      display: none;
+      padding: 9px 11px;
+      border: 1px solid rgba(248, 113, 113, .25);
+      border-radius: 9px;
+      background: rgba(127, 29, 29, .25);
+      color: #fecaca;
+      font-size: 11px
+    }
+
+    /* Player YouTube dipertahankan dalam dokumen agar audio dapat ditangkap OBS, tanpa tampil sebagai video di dock. */
+    #audio-engine {
+      position: fixed;
+      left: -1000px;
+      top: 0;
+      width: 200px;
+      height: 200px;
+      overflow: hidden;
+      opacity: .001;
+      pointer-events: none
+    }
+
+    #audio-engine iframe {
+      width: 200px;
+      height: 200px
+    }
+
+    @media(max-width:380px) {
+      body {
+        padding: 10px
+      }
+
+      .title {
+        font-size: 15px
+      }
+
+      .cover {
+        width: 56px;
+        height: 56px;
+        flex-basis: 56px
+      }
+
+      .audio-controls {
+        flex-wrap: wrap
+      }
+
+      .audio-hint {
+        min-width: 100px
+      }
+
+      .volume {
+        flex: 1
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="dock">
+    <header>
+      <div class="brand"><span class="brand-icon">♫</span><span>Music Dock</span></div>
+      <div class="connection"><span class="dot" id="connection-dot"></span><span
+          id="connection-text">Menghubungkan</span></div>
+    </header>
+    <div class="notice" id="notice">Menghubungkan ke server pemutar musik…</div>
+    <section class="card now">
+      <div class="section-label"><span>♫</span> Sedang diputar</div>
+      <div class="song-main">
+        <div class="cover" id="cover">♫</div>
+        <div class="meta">
+          <div class="title" id="current-title">Menunggu lagu…</div>
+          <div class="byline" id="current-by">Peminta: —</div><span class="status" id="play-state">STANDBY</span>
+        </div>
+      </div>
+      <div class="audio-controls"><button class="audio-toggle" id="audio-toggle" type="button">▶ Aktifkan
+          Audio</button><span class="audio-hint" id="audio-hint">Klik untuk mengaktifkan suara dock OBS.</span><input
+          class="volume" id="volume" type="range" min="0" max="100" value="80" aria-label="Volume audio"><span
+          class="volume-label" id="volume-label">80%</span></div>
+    </section>
+    <section class="card queue">
+      <div class="queue-head">
+        <div class="queue-name"><span>☷</span> Antrean lagu</div><span class="queue-count" id="queue-count">0
+          lagu</span>
+      </div>
+      <div class="items" id="queue-items">
+        <div class="empty">Antrean lagu akan muncul di sini.</div>
+      </div>
+    </section>
+  </main>
+  <div id="audio-engine" aria-hidden="true"></div>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const safe = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      let currentQueue = [], currentVideoId = '', latestPlaying = true, audioEnabled = false, ytPlayer = null, ytReady = false;
+      const setAudioButton = () => { $('audio-toggle').textContent = audioEnabled ? '❚❚ Jeda Audio' : '▶ Aktifkan Audio'; $('audio-hint').textContent = audioEnabled ? 'Audio dock aktif — OBS dapat menangkap suara ini.' : 'Klik untuk mengaktifkan suara dock OBS.' };
+      const playDockAudio = () => { if (!ytPlayer || !ytReady || !currentVideoId) return; try { ytPlayer.unMute(); ytPlayer.setVolume(Number($('volume').value)); ytPlayer.playVideo() } catch (e) { $('audio-hint').textContent = 'Tekan Aktifkan Audio lagi jika browser memblokir pemutaran.' } };
+      window.onYouTubeIframeAPIReady = () => { ytPlayer = new YT.Player('audio-engine', { width: '200', height: '200', videoId: currentVideoId || undefined, playerVars: { autoplay: 0, controls: 0, disablekb: 1, playsinline: 1, rel: 0, origin: location.origin }, events: { onReady: event => { ytReady = true; event.target.setVolume(Number($('volume').value)); if (currentVideoId) event.target.cueVideoById(currentVideoId) }, onStateChange: event => { if (event.data === YT.PlayerState.ENDED && audioEnabled) {/* Server akan mengirim lagu berikutnya; jangan pindahkan antrean dari dock. */ } } } }) };
+      const render = data => {
+        data = data || {}; const current = data.currentSong; const queue = Array.isArray(data.songQueue) ? data.songQueue : []; currentQueue = queue; latestPlaying = data.isPlaying !== false;
+        $('current-title').textContent = current?.title || 'Menunggu lagu…'; $('current-by').textContent = current ? `Peminta: ${current.requestedBy || 'HOST'}` : 'Peminta: —';
+        $('play-state').textContent = !current ? 'STANDBY' : latestPlaying ? 'SEDANG DIPUTAR' : 'PAUSE';
+        $('cover').innerHTML = current?.youtubeId ? `<img alt="Sampul lagu" src="https://img.youtube.com/vi/${encodeURIComponent(current.youtubeId)}/hqdefault.jpg">` : '♫';
+        const newId = current?.youtubeId || '';
+        if (newId && newId !== currentVideoId) { currentVideoId = newId; if (ytPlayer && ytReady) { if (audioEnabled && latestPlaying) ytPlayer.loadVideoById(newId); else ytPlayer.cueVideoById(newId) } }
+        else if (currentVideoId && ytPlayer && ytReady && audioEnabled) { if (latestPlaying) ytPlayer.playVideo(); else ytPlayer.pauseVideo() }
+        $('queue-count').textContent = `${queue.length} lagu`;
+        $('queue-items').innerHTML = queue.length ? queue.map((song, i) => `<div class="item"><span class="num">${i + 1}</span><div class="song"><div class="item-title">${safe(song.title || 'Judul tidak tersedia')}</div><div class="requester">${safe(song.requestedBy || 'HOST')}</div></div>${song.vvip === true ? '<span class="vvip">VVIP</span>' : '<span></span>'}<div class="move-controls"><button class="move-btn" data-move="${i - 1}" aria-label="Pindahkan ke atas" title="Pindahkan ke atas" ${i === 0 ? 'disabled' : ''}>↑</button><button class="move-btn" data-move="${i + 1}" aria-label="Pindahkan ke bawah" title="Pindahkan ke bawah" ${i === queue.length - 1 ? 'disabled' : ''}>↓</button></div></div>`).join('') : '<div class="empty">Antrean kosong.</div>';
+      };
+      $('audio-toggle').addEventListener('click', () => { if (!currentVideoId) { $('audio-hint').textContent = 'Belum ada lagu yang dapat diputar.'; return } if (audioEnabled) { audioEnabled = false; if (ytPlayer && ytReady) ytPlayer.pauseVideo() } else { audioEnabled = true; playDockAudio() } setAudioButton() });
+      $('volume').addEventListener('input', event => { $('volume-label').textContent = `${event.target.value}%`; if (ytPlayer && ytReady) ytPlayer.setVolume(Number(event.target.value)) });
+      if (typeof io === 'undefined') { $('notice').style.display = 'block'; $('notice').textContent = 'Socket.IO tidak ditemukan. Pastikan server pemutar berjalan.' }
+      else { const socket = io('http://localhost:3000'); socket.on('connect', () => { $('connection-dot').classList.add('on'); $('connection-text').textContent = 'Terhubung'; $('notice').style.display = 'none' }); socket.on('disconnect', () => { $('connection-dot').classList.remove('on'); $('connection-text').textContent = 'Terputus'; $('notice').style.display = 'block'; $('notice').textContent = 'Koneksi ke pemutar terputus…' }); socket.on('connect_error', () => { $('connection-dot').classList.remove('on'); $('connection-text').textContent = 'Offline'; $('notice').style.display = 'block'; $('notice').textContent = 'Menghubungkan ke server pemutar musik…' }); socket.on('update-queue', render); $('queue-items').addEventListener('click', event => { const button = event.target.closest('[data-move]'); if (!button || button.disabled) return; const from = Number(button.closest('.item').querySelector('.num').textContent) - 1; const to = Number(button.dataset.move); if (!Number.isInteger(from) || !Number.isInteger(to) || to < 0 || to >= currentQueue.length || from === to) return; const reordered = [...currentQueue]; const [song] = reordered.splice(from, 1); reordered.splice(to, 0, song); socket.emit('reorder-queue', reordered) }) }
+      setAudioButton();
+    })();
+  </script>
+</body>
+
+</html>
