@@ -15,33 +15,51 @@ jobs:
       - name: Ambil Kode dari Repo
         uses: actions/checkout@v4
 
-      - name: Periksa ruang disk dan ekstrak ZIP
+      - name: Bersihkan cache runner dan cek ruang disk
         shell: bash
         run: |
           set -euo pipefail
 
-          echo "Ruang disk sebelum ekstraksi:"
-          df -h .
+          echo "Ruang disk sebelum pembersihan:"
+          df -h /
+
+          # Membersihkan cache yang tidak diperlukan untuk build aplikasi.
+          # Folder yang tidak ada akan dilewati.
+          rm -rf "$HOME/Library/Developer/Xcode/DerivedData"
+          rm -rf "$HOME/Library/Developer/CoreSimulator/Caches"
+          rm -rf "$HOME/Library/Caches/CocoaPods"
+          rm -rf "$HOME/Library/Caches/Homebrew"
+          rm -rf "$HOME/Library/Caches/pip"
+          rm -rf "$HOME/.npm/_cacache"
+          rm -rf "$HOME/.cache"
+
+          echo "Ruang disk setelah pembersihan:"
+          df -h /
+
+      - name: Ekstrak ZIP wajib satu per satu
+        shell: bash
+        run: |
+          set -euo pipefail
 
           archives=(build.zip themes.zip css.zip js.zip tools.zip)
 
           for archive in "${archives[@]}"; do
             if [[ ! -f "$archive" ]]; then
-              echo "::error::File wajib tidak ditemukan: $archive"
+              echo "::error::File ZIP wajib tidak ditemukan: $archive"
               exit 1
             fi
 
-            echo "Memeriksa $archive..."
+            echo "Memeriksa arsip: $archive"
             unzip -tq "$archive"
 
-            echo "Mengekstrak $archive..."
+            echo "Mengekstrak: $archive"
             unzip -oq "$archive" -d .
 
-            echo "Menghapus arsip $archive untuk menghemat ruang disk..."
+            echo "Menghapus arsip setelah berhasil diekstrak: $archive"
             rm "$archive"
 
-            echo "Ruang disk setelah $archive:"
-            df -h .
+            echo "Ruang disk setelah memproses $archive:"
+            df -h /
           done
 
       - name: Setup Node.js
