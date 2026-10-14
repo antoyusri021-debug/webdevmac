@@ -1,0 +1,23 @@
+**Version 3.1.2 - "Next Level Streaming"**
+
+Halo, Content Creator!
+
+Selamat datang di **WebDev Overlay Stream v3.1.2**.
+
+WebDev Overlay Stream pada awalnya dikembangkan sebagai aplikasi yang berfokus untuk membantu Content Creator mengelola dan meningkatkan pengalaman **TikTok LIVE** melalui berbagai fitur monitoring, chat, overlay, musik, TTS, dan berbagai tools pendukung streaming.
+
+Seiring perkembangan WebDev, kini aplikasi ini melangkah ke tahap berikutnya.
+
+Pada **versi 3.1.2**, WebDev Overlay Stream resmi menghadirkan **dukungan koneksi YouTube Live**, sehingga aplikasi tidak lagi hanya berfokus pada TikTok LIVE, tetapi mulai berkembang menjadi platform streaming yang mendukung lebih dari satu platform.
+
+Dengan hadirnya integrasi **TikTok LIVE dan YouTube LIVE**, WebDev terus dikembangkan untuk memberikan pengalaman streaming yang lebih fleksibel, modern, dan terintegrasi dalam satu aplikasi.
+
+Versi 3.1.2 juga menghadirkan berbagai penyempurnaan sistem, peningkatan stabilitas, optimalisasi performa, serta perbaikan pada beberapa fitur yang telah tersedia sebelumnya.
+
+**Dari TikTok LIVE, kini berkembang menuju YouTube LIVE.**
+
+Ini bukan sekadar pembaruan versi.
+
+**Ini adalah langkah baru WebDev menuju ekosistem streaming yang lebih luas.**
+
+**WebDev Overlay Stream v3.1.2 — Next Level Streaming.**
